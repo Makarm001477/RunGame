@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement; // เพิ่มสำหรับการรีโหลดฉาก
 using TMPro;
 
 public class ItemCollector : MonoBehaviour
@@ -14,6 +15,15 @@ public class ItemCollector : MonoBehaviour
     void Start()
     {
         UpdateItemUI(); // อัปเดต UI ตอนเริ่มเกม
+    }
+
+    void Update()
+    {
+        // เช็คว่าผู้เล่นกดปุ่ม R เพื่อรีโหลดฉาก
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ReloadScene();
+        }
     }
 
     // ฟังก์ชันที่เรียกใช้เมื่อเก็บไอเท็ม
@@ -52,5 +62,12 @@ public class ItemCollector : MonoBehaviour
             obstacle.SetActive(false); // ทำให้สิ่งกีดขวางหายไป
             Debug.Log("Obstacle Removed!");
         }
+    }
+
+    // ฟังก์ชันรีโหลดฉาก
+    void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Debug.Log("Scene Reloaded");
     }
 }

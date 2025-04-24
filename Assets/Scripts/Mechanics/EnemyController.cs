@@ -1,55 +1,58 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Gameplay;
-using UnityEngine;
-using static Platformer.Core.Simulation;
+﻿using UnityEngine;
+using TMPro;
+using System.Collections;
 
-namespace Platformer.Mechanics
+public class PlayerEnemyCollision : MonoBehaviour
 {
-    /// <summary>
-    /// A simple controller for enemies. Provides movement control over a patrol path.
-    /// </summary>
-    [RequireComponent(typeof(AnimationController), typeof(Collider2D))]
-    public class EnemyController : MonoBehaviour
+    public GameObject objectToDisable;  // เลือก GameObject ที่ต้องการ disable ใน Inspector
+    public TextMeshProUGUI cooldownText;  // ตัวแปร TextMeshPro สำหรับแสดงข้อความ
+    public float disableDuration = 3f;  // เวลาที่จะ disable object (3 วิ)
+    public float enemyCooldown = 5f;    // คูลดาวน์ของ enemy (5 วิ)
+
+    private bool isCooldownActive = false;
+    private float cooldownTimer = 0f;
+
+    void Update()
     {
-        public PatrolPath path;
-        public AudioClip ouch;
-
-        internal PatrolPath.Mover mover;
-        internal AnimationController control;
-        internal Collider2D _collider;
-        internal AudioSource _audio;
-        SpriteRenderer spriteRenderer;
-
-        public Bounds Bounds => _collider.bounds;
-
-        void Awake()
+        // เช็คคูลดาวน์ของ enemy
+        if (isCooldownActive)
         {
-            control = GetComponent<AnimationController>();
-            _collider = GetComponent<Collider2D>();
-            _audio = GetComponent<AudioSource>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-        }
-
-        void OnCollisionEnter2D(Collision2D collision)
-        {
-            var player = collision.gameObject.GetComponent<PlayerController>();
-            if (player != null)
+            cooldownTimer -= Time.deltaTime;
+            cooldownText.text = "Enemy Cooldown: " + Mathf.Max(0, Mathf.Ceil(cooldownTimer)) + "s";
+            if (cooldownTimer <= 0)
             {
-                var ev = Schedule<PlayerEnemyCollision>();
-                ev.player = player;
-                ev.enemy = this;
+                isCooldownActive = false;
+                cooldownText.text = "";
             }
         }
+    }
 
-        void Update()
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        // ตรวจสอบการชนกับ Enemy
+        if (other.CompareTag("Enemy") && !isCooldownActive)
         {
-            if (path != null)
-            {
-                if (mover == null) mover = path.CreateMover(control.maxSpeed * 0.5f);
-                control.move.x = Mathf.Clamp(mover.Position.x - transform.position.x, -1, 1);
-            }
+            StartCoroutine(DisableObjectAndShowMessage());
+            isCooldownActive = true;
+            cooldownTimer = enemyCooldown;
         }
+    }
 
+    private IEnumerator DisableObjectAndShowMessage()
+    {
+        // Disable object
+        objectToDisable.SetActive(false);
+
+        // แสดงข้อความใน TextMeshPro
+        cooldownText.text = "Player Disabled for " + disableDuration + "s";
+
+        // รอ 3 วิ
+        yield return new WaitForSeconds(disableDuration);
+
+        // เปิดใช้งาน object ใหม่
+        objectToDisable.SetActive(true);
+
+        // ลบข้อความ
+        cooldownText.text = "";
     }
 }

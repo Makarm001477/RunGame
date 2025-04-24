@@ -40,7 +40,7 @@ public class CountdownTimer : MonoBehaviour
     {
         int minutes = Mathf.FloorToInt(currentTime / 60);
         int seconds = Mathf.FloorToInt(currentTime % 60);
-        countdownText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        countdownText.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
     }
 
     void OnTimerEnd()

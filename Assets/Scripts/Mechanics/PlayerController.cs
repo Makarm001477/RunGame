@@ -42,7 +42,7 @@ namespace Platformer.Mechanics
 
         public Bounds Bounds => collider2d.bounds;
 
-        // --- Double Jump variables ---
+        // --- Double Jump variables --- 
         public int maxJumpCount = 2; // จำนวนกระโดดสูงสุด
         private int jumpCount = 0;   // จำนวนครั้งที่กระโดดไปแล้ว
 
@@ -59,15 +59,26 @@ namespace Platformer.Mechanics
         {
             if (controlEnabled)
             {
-                move.x = Input.GetAxis("Horizontal");
-                if (Input.GetButtonDown("Jump"))
+                // ควบคุมการเคลื่อนที่ด้วย WASD
+                move.x = 0;
+                if (Input.GetKey(KeyCode.A)) // สำหรับปุ่ม A
+                {
+                    move.x = -1;
+                }
+                else if (Input.GetKey(KeyCode.D)) // สำหรับปุ่ม D
+                {
+                    move.x = 1;
+                }
+
+                // ควบคุมการกระโดดด้วย Spacebar
+                if (Input.GetKeyDown(KeyCode.Space))
                 {
                     if (jumpCount < maxJumpCount)
                     {
                         jumpState = JumpState.PrepareToJump;
                     }
                 }
-                else if (Input.GetButtonUp("Jump"))
+                else if (Input.GetKeyUp(KeyCode.Space))
                 {
                     stopJump = true;
                     Schedule<PlayerStopJump>().player = this;
@@ -77,6 +88,7 @@ namespace Platformer.Mechanics
             {
                 move.x = 0;
             }
+
             UpdateJumpState();
             base.Update();
         }

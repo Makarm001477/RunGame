@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Platformer.Gameplay;
 using UnityEngine;
 using static Platformer.Core.Simulation;
